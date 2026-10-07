@@ -1,0 +1,1542 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP ARCHITECT | DECAL GENERATOR</title>
+    <style>
+        /* PHOTOPEA INSPIRED INDUSTRIAL DARK THEME CORE */
+        :root {
+            --bg-main: #1c1d22;
+            --bg-sidebar: #25262c;
+            --bg-header: #2f3037;
+            --bg-input: #111216;
+            --border-color: #3f414a;
+            --text-main: #d1d2d6;
+            --text-bright: #ffffff;
+            --accent: #e58e26;
+            --accent-hover: #f39c12;
+            --danger: #c0392b;
+            --panel-width: 340px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 40px;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header h1 span {
+            color: var(--accent);
+            font-size: 10px;
+            border: 1px solid var(--accent);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        .meta-info {
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        /* MAIN APP LAYOUT CONTAINER */
+        .app-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 40px);
+            overflow: hidden;
+        }
+
+        /* SIDEBARS / CONTROLS */
+        .sidebar {
+            width: var(--panel-width);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 8;
+        }
+
+        .sidebar.right-sidebar {
+            border-right: none;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .panel-section {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-bright);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* TAB CONTROLLER BAR */
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: #202126;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.02);
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            background: var(--bg-sidebar);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* FORM PROPERTY INPUT CONTROLS */
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #a4a6b0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-bright);
+            padding: 6px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+        }
+
+        /* INTERACTIVE PIXEL-PERFECT COLOR TILES */
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 4px;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+        }
+
+        .color-preview-block {
+            width: 24px;
+            height: 18px;
+            border-radius: 2px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .color-hex-label {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--text-bright);
+        }
+
+        /* RANGE SLIDER GRAPHICS */
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+            background: var(--bg-input);
+            height: 4px;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .range-value {
+            font-family: monospace;
+            width: 35px;
+            text-align: right;
+            color: var(--text-bright);
+        }
+
+        /* BUTTONS */
+        .btn {
+            background-color: #3a3b45;
+            color: var(--text-bright);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #4a4b57;
+            border-color: #5a5b67;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 8px;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .radio-tile-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .radio-tile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .radio-tile input {
+            accent-color: var(--accent);
+        }
+
+        /* CENTRAL CANVAS WORKSPACE VIEWPORT (SOLID VOID + TRANSPARENT CHECKERBOARD MAP) */
+        .workspace {
+            flex: 1;
+            background-color: #141414; /* Pure Tactical Dark Underlay Void */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CHECKERBOARD HUD GRID PREVIEW PLATFORM CONTAINER */
+        .canvas-container {
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+            transform-origin: center center;
+            background-color: #141414;
+            border: 1px solid #000000;
+        }
+
+        /* Dedicated Checkerboard Layer simulating real nullspace under the canvas output content */
+        .checkerboard-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            background-image: linear-gradient(45deg, #202020 25%, transparent 25%), 
+                              linear-gradient(-45deg, #202020 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #202020 75%), 
+                              linear-gradient(-45deg, transparent 75%, #202020 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+            pointer-events: none;
+        }
+
+        #mainCanvas {
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* INTERACTIVE TRANSFORM SELECTION GIZMO (Google Drawings style) */
+        .gizmo-overlay {
+            position: absolute;
+            z-index: 5;
+            border: 1px solid #4285f4;
+            box-sizing: border-box;
+            pointer-events: none;
+            display: none;
+        }
+
+        .gizmo-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #ffffff;
+            border: 1px solid #4285f4;
+            border-radius: 0px;
+            pointer-events: auto;
+        }
+        
+        .gizmo-handle.tl { top: -5px; left: -5px; cursor: nwse-resize; }
+        .gizmo-handle.tm { top: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+        .gizmo-handle.tr { top: -5px; right: -5px; cursor: nesw-resize; }
+        .gizmo-handle.ml { top: calc(50% - 5px); left: -5px; cursor: ew-resize; }
+        .gizmo-handle.mr { top: calc(50% - 5px); right: -5px; cursor: ew-resize; }
+        .gizmo-handle.bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+        .gizmo-handle.bm { bottom: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+        .gizmo-handle.br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+        /* WORKSPACE GRAPHICS HUD OVERLAY */
+        .viewport-hud {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(37, 38, 44, 0.95);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 15;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+
+        .hud-zoom-val {
+            font-family: monospace;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: center;
+            color: var(--text-bright);
+        }
+
+        select.hud-zoom-select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-bright);
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 11px;
+            width: auto;
+            cursor: pointer;
+        }
+
+        /* LAYER CONTAINER LIST CARD STACK */
+        .layers-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: calc(100vh - 210px);
+            overflow-y: auto;
+            padding-top: 4px;
+        }
+
+        .layer-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 11px;
+            border-left: 3px solid var(--accent);
+            cursor: pointer;
+        }
+
+        .layer-card.selected {
+            border-color: #4285f4;
+            background: #1a2436;
+        }
+
+        .layer-card.layer-svg {
+            border-left-color: #3498db;
+        }
+
+        .layer-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: var(--text-bright);
+        }
+
+        .layer-property-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SCP ARCHITECT <span>DECAL GENERATOR v2.4</span></h1>
+        <div class="meta-info">System Engine Matrix: Live</div>
+    </header>
+
+    <div class="app-container">
+        <!-- LEFT PANEL CONTROLS -->
+        <aside class="sidebar">
+            <div class="panel-section">
+                <div class="panel-title">Render Blueprint</div>
+                <div class="radio-tile-group">
+                    <label class="radio-tile">
+                        <input type="radio" name="renderEngine" value="draft" checked id="engineDraft">
+                        <div>
+                            <strong style="color:var(--text-bright)">Draft Engine</strong>
+                            <div style="font-size:10px; color:#7f8c8d">Fast Vector Live Preview</div>
+                        </div>
+                    </label>
+                    <label class="radio-tile">
+                        <input type="radio" name="renderEngine" value="production" id="engineProd">
+                        <div>
+                            <strong style="color:var(--text-bright)">Production Render</strong>
+                            <div style="font-size:10px; color:#7f8c8d">2x Super-Sampling Anti-Aliasing Bake</div>
+                        </div>
+                    </label>
+                </div>
+                <button class="btn btn-primary btn-block" style="margin-top:10px;" id="btnExecuteRender">Execute Render Frame</button>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">File Control Hub</div>
+                <div class="control-group">
+                    <label>Aspect Output Target</label>
+                    <select id="aspectTarget">
+                        <option value="1300x250" selected>(1) Nametag (1300x250px)</option>
+                        <option value="500x500">(2) Square (500x500px)</option>
+                        <option value="500x760">(3) Poster Screen (500x760px)</option>
+                        <option value="760x500">(4) TV (760x500px)</option>
+                        <option value="1020x500">(5) Wider Screen (1020x500px)</option>
+                        <option value="500x840">(6) Long Screen (500x840px)</option>
+                        <option value="900x600">(9) Projector Screen (900x600px)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="input-row">
+                        <div>
+                            <label>Width</label>
+                            <input type="number" id="canvasWidth" value="1300">
+                        </div>
+                        <div>
+                            <label>Height</label>
+                            <input type="number" id="canvasHeight" value="250">
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" id="btnExportProfile">Export State</button>
+                    <button class="btn" id="btnQuickPNG" style="color:var(--accent)">Quick PNG</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Canvas Environment</div>
+                <div class="control-group">
+                    <label>Background Texture Engine</label>
+                    <select id="bgType">
+                        <option value="solid" selected>Solid Tactical Void (Black)</option>
+                        <option value="gradient">Linear Clearance Gradient</option>
+                        <option value="transparent">Transparent Canvas Void (Alpha)</option>
+                    </select>
+                </div>
+
+                <div id="solidBgControls" class="control-group">
+                    <label>Solid Background Color</label>
+                    <div class="color-picker-wrapper">
+                        <div class="color-preview-block" id="solidColorBlock" style="background:#000000"></div>
+                        <span class="color-hex-label" id="solidColorHex">#000000</span>
+                        <input type="color" id="bgColor" value="#000000">
+                    </div>
+                </div>
+
+                <div id="gradientBgControls" class="control-group" style="display:none;">
+                    <div class="input-row">
+                        <div style="flex:1">
+                            <label>Color Start</label>
+                            <div class="color-picker-wrapper">
+                                <div class="color-preview-block" id="gradStartBlock" style="background:#111317"></div>
+                                <span class="color-hex-label" id="gradStartHex">#111317</span>
+                                <input type="color" id="gradStart" value="#111317">
+                            </div>
+                        </div>
+                        <div style="flex:1">
+                            <label>Color Stop</label>
+                            <div class="color-picker-wrapper">
+                                <div class="color-preview-block" id="gradStopBlock" style="background:#050506"></div>
+                                <span class="color-hex-label" id="gradStopHex">#050506</span>
+                                <input type="color" id="gradStop" value="#050506">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER MAIN WORKSPACE -->
+        <main class="workspace" id="workspaceRoot">
+            <div class="canvas-container" id="canvasScaleContainer">
+                <div class="checkerboard-overlay"></div>
+                <canvas id="mainCanvas" width="1300" height="250"></canvas>
+                
+                <div class="gizmo-overlay" id="gizmoOverlay">
+                    <div class="gizmo-handle tl" data-handle="tl"></div>
+                    <div class="gizmo-handle tm" data-handle="tm"></div>
+                    <div class="gizmo-handle tr" data-handle="tr"></div>
+                    <div class="gizmo-handle ml" data-handle="ml"></div>
+                    <div class="gizmo-handle mr" data-handle="mr"></div>
+                    <div class="gizmo-handle bl" data-handle="bl"></div>
+                    <div class="gizmo-handle bm" data-handle="bm"></div>
+                    <div class="gizmo-handle br" data-handle="br"></div>
+                </div>
+            </div>
+
+            <div class="viewport-hud">
+                <button class="btn" style="padding:2px 8px;" id="hudZoomOut">−</button>
+                <select id="hudZoomSelect" class="hud-zoom-select">
+                    <option value="0.25">25%</option>
+                    <option value="0.50">50%</option>
+                    <option value="0.75">75%</option>
+                    <option value="1.00" selected>100%</option>
+                    <option value="1.50">150%</option>
+                    <option value="2.00">200%</option>
+                    <option value="3.00">300%</option>
+                    <option value="fit">Fit</option>
+                </select>
+                <button class="btn" style="padding:2px 8px;" id="hudZoomIn">+</button>
+            </div>
+        </main>
+
+        <!-- RIGHT LAYERS / OVERLAYS PANEL -->
+        <aside class="sidebar right-sidebar">
+            <div class="tab-header">
+                <button class="tab-btn active" id="tabTriggerLayers">Layers</button>
+                <button class="tab-btn" id="tabTriggerOverlays">Tactical Overlays</button>
+            </div>
+
+            <div id="layersTab" class="tab-content active">
+                <div class="panel-section">
+                    <div class="panel-title">Signage Content Blocks</div>
+                    <div class="btn-group" style="margin-bottom:10px;">
+                        <button class="btn" id="btnAddText">+ Text Block</button>
+                        <button class="btn" id="btnAddSvg">+ Import SVG</button>
+                    </div>
+                    <input type="file" id="svgFileInput" class="hidden-file-input" accept=".svg">
+                    
+                    <div class="layers-stack" id="layersStackContainer">
+                        <!-- Layers stack cards array -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="overlaysTab" class="tab-content">
+                <div class="panel-section">
+                    <div class="panel-title">
+                        <span>LED Grid Overlay Matrix</span>
+                        <input type="checkbox" id="enableLED" style="accent-color: var(--accent)">
+                    </div>
+                    <div class="control-group">
+                        <label>LED Pixel Pitch Grid Size</label>
+                        <div class="range-container">
+                            <input type="range" id="ledSize" min="2" max="14" value="6">
+                            <span class="range-value" id="ledSizeVal">6px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-title">
+                        <span>Enable Layer Weathering</span>
+                        <input type="checkbox" id="enableWeathering" checked style="accent-color: var(--accent)">
+                    </div>
+                    <div class="control-group">
+                        <label>Weathering Core Profile</label>
+                        <select id="weatheringProfile">
+                            <option value="perlin" selected>Perlin (Standard Corrosion)</option>
+                            <option value="simplex">Simplex (Sharp Metallic Decay)</option>
+                            <option value="cellular">Cellular (Concrete Damage Flakes)</option>
+                            <option value="abrasion">High Abrasion (Road Striping Style)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Debris Scale Mapping</label>
+                        <div class="range-container">
+                            <input type="range" id="weatheringScale" min="10" max="150" value="45">
+                            <span class="range-value" id="weatheringScaleVal">45</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Erosion Intensity Opacity</label>
+                        <div class="range-container">
+                            <input type="range" id="weatheringIntensity" min="10" max="95" value="55">
+                            <span class="range-value" id="weatheringIntensityVal">55%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-title">Tactical Boundary Geometry</div>
+                    <div class="control-group">
+                        <label>Frame Overlay Style</label>
+                        <select id="boundaryStyle">
+                            <option value="none">None / Clean Panel</option>
+                            <option value="horizontal">Horizontal Safety Stripes</option>
+                            <option value="vertical">Vertical Safety Stripes</option>
+                            <option value="hazard" selected>Hazard Cross Markings (Decay Match)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Boundary Base Colour</label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-preview-block" id="boundaryColorBlock" style="background:#e58e26"></div>
+                            <span class="color-hex-label" id="boundaryColorHex">#e58e26</span>
+                            <input type="color" id="boundaryColor" value="#e58e26">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // CENTRALIZED RUNTIME STATE
+        const state = {
+            width: 1300,
+            height: 250,
+            zoom: 1.0,
+            panX: 0,
+            panY: 0,
+            bgType: 'solid',
+            bgColor: '#000000',
+            gradStart: '#111317',
+            gradStop: '#050506',
+            renderEngine: 'draft',
+            
+            enableLED: false,
+            ledSize: 6,
+            enableWeathering: true,
+            weatheringProfile: 'perlin',
+            weatheringScale: 45,
+            weatheringIntensity: 55,
+            boundaryStyle: 'hazard',
+            boundaryColor: '#e58e26',
+
+            layers: [],
+            selectedLayerId: null,
+            fontCounter: 0
+        };
+
+        // DOM NODE HOOKS
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasScaleContainer = document.getElementById('canvasScaleContainer');
+        const layersStackContainer = document.getElementById('layersStackContainer');
+        const workspaceRoot = document.getElementById('workspaceRoot');
+        const gizmoOverlay = document.getElementById('gizmoOverlay');
+        const zoomSelect = document.getElementById('hudZoomSelect');
+
+        // Transform manipulation states
+        let isManipulating = false;
+        let manipulationMode = 'move';
+        let startX = 0, startY = 0;
+        let startLayerX = 0, startLayerY = 0;
+        let startLayerW = 0, startLayerH = 0;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupTabsUIEngine();
+            setupUnifiedFieldBindings();
+            setupInteractiveNavigationEngine();
+            setupGizmoInteractionEngine();
+            injectDefaultSignageLayers();
+            autoFitViewportScale();
+            requestRenderUpdate();
+        });
+
+        // 1. RELIABLE TAB SWITCH ROUTER
+        function setupTabsUIEngine() {
+            const btnLayers = document.getElementById('tabTriggerLayers');
+            const btnOverlays = document.getElementById('tabTriggerOverlays');
+            const tabLayers = document.getElementById('layersTab');
+            const tabOverlays = document.getElementById('overlaysTab');
+
+            btnLayers.addEventListener('click', () => {
+                btnLayers.classList.add('active');
+                btnOverlays.classList.remove('active');
+                tabLayers.classList.add('active');
+                tabOverlays.classList.remove('active');
+            });
+
+            btnOverlays.addEventListener('click', () => {
+                btnOverlays.classList.add('active');
+                btnLayers.classList.remove('active');
+                tabOverlays.classList.add('active');
+                tabOverlays.classList.remove('active');
+                tabOverlays.className = "tab-content active";
+                tabLayers.className = "tab-content";
+            });
+        }
+
+        // 2. UNIFIED PIPELINE BINDINGS
+        function setupUnifiedFieldBindings() {
+            document.getElementById('aspectTarget').addEventListener('change', (e) => {
+                const [w, h] = e.target.value.split('x').map(Number);
+                document.getElementById('canvasWidth').value = w;
+                document.getElementById('canvasHeight').value = h;
+                modifyCanvasBounds(w, h);
+            });
+
+            const onManualDimInput = () => {
+                const w = parseInt(document.getElementById('canvasWidth').value) || 500;
+                const h = parseInt(document.getElementById('canvasHeight').value) || 250;
+                modifyCanvasBounds(w, h);
+            };
+            document.getElementById('canvasWidth').addEventListener('input', onManualDimInput);
+            document.getElementById('canvasHeight').addEventListener('input', onManualDimInput);
+
+            document.getElementById('bgType').addEventListener('change', (e) => {
+                state.bgType = e.target.value;
+                document.getElementById('solidBgControls').style.display = (state.bgType === 'solid') ? 'block' : 'none';
+                document.getElementById('gradientBgControls').style.display = (state.bgType === 'gradient') ? 'block' : 'none';
+                requestRenderUpdate();
+            });
+
+            registerColorPickerPipe('bgColor', 'solidColorBlock', 'solidColorHex', (color) => { state.bgColor = color; });
+            registerColorPickerPipe('gradStart', 'gradStartBlock', 'gradStartHex', (color) => { state.gradStart = color; });
+            registerColorPickerPipe('gradStop', 'gradStopBlock', 'gradStopHex', (color) => { state.gradStop = color; });
+            registerColorPickerPipe('boundaryColor', 'boundaryColorBlock', 'boundaryColorHex', (color) => { state.boundaryColor = color; });
+
+            registerSliderPipe('ledSize', 'ledSizeVal', 'px', (val) => { state.ledSize = val; });
+            registerSliderPipe('weatheringScale', 'weatheringScaleVal', '', (val) => { state.weatheringScale = val; });
+            registerSliderPipe('weatheringIntensity', 'weatheringIntensityVal', '%', (val) => { state.weatheringIntensity = val; });
+
+            document.getElementById('enableLED').addEventListener('change', (e) => { state.enableLED = e.target.checked; requestRenderUpdate(); });
+            document.getElementById('enableWeathering').addEventListener('change', (e) => { state.enableWeathering = e.target.checked; requestRenderUpdate(); });
+            document.getElementById('weatheringProfile').addEventListener('change', (e) => { state.weatheringProfile = e.target.value; requestRenderUpdate(); });
+            document.getElementById('boundaryStyle').addEventListener('change', (e) => { state.boundaryStyle = e.target.value; requestRenderUpdate(); });
+
+            document.getElementById('btnAddText').addEventListener('click', createNewTextLayerBlock);
+            document.getElementById('btnAddSvg').addEventListener('click', () => document.getElementById('svgFileInput').click());
+            document.getElementById('svgFileInput').addEventListener('change', executeSvgFileImportStream);
+
+            document.getElementById('btnQuickPNG').addEventListener('click', triggerBinaryPngExportAction);
+            document.getElementById('btnExecuteRender').addEventListener('click', () => {
+                state.renderEngine = 'production';
+                document.getElementById('engineProd').checked = true;
+                performSynchronousRenderBake();
+                triggerBinaryPngExportAction();
+            });
+            document.getElementById('btnExportProfile').addEventListener('click', () => {
+                alert("Decal Configuration State Saved Profile:\n" + JSON.stringify(state, null, 2));
+            });
+        }
+
+        function registerColorPickerPipe(inputId, blockId, hexId, assignCallback) {
+            const input = document.getElementById(inputId);
+            input.addEventListener('input', (e) => {
+                const hexColor = e.target.value;
+                document.getElementById(blockId).style.backgroundColor = hexColor;
+                document.getElementById(hexId).textContent = hexColor.toUpperCase();
+                assignCallback(hexColor);
+                requestRenderUpdate();
+            });
+        }
+
+        function registerColorPickerPipeDirect(layerId, hexColor) {
+            const layer = state.layers.find(l => l.id === layerId);
+            if (layer) {
+                layer.color = hexColor;
+                rebuildLayersStackControlDOM();
+                requestRenderUpdate();
+            }
+        }
+
+        function registerSliderPipe(id, valId, suffix, assignCallback) {
+            const input = document.getElementById(id);
+            input.addEventListener('input', (e) => {
+                const numVal = parseInt(e.target.value);
+                document.getElementById(valId).textContent = numVal + suffix;
+                assignCallback(numVal);
+                requestRenderUpdate();
+            });
+        }
+
+        // 3. STANDARD MOUSE SCROLLWHEEL ZOOM ENGINE
+        function setupInteractiveNavigationEngine() {
+            document.getElementById('hudZoomIn').addEventListener('click', () => {
+                let currentZoom = parseFloat(state.zoom);
+                updateZoomState(Math.min(5.0, currentZoom + 0.25));
+            });
+
+            document.getElementById('hudZoomOut').addEventListener('click', () => {
+                let currentZoom = parseFloat(state.zoom);
+                updateZoomState(Math.max(0.1, currentZoom - 0.25));
+            });
+
+            zoomSelect.addEventListener('change', (e) => {
+                if (e.target.value === 'fit') {
+                    autoFitViewportScale();
+                } else {
+                    updateZoomState(parseFloat(e.target.value));
+                }
+            });
+
+            // Standard mouse wheel event binding (Scroll zooming works smoothly everywhere inside workspace)
+            workspaceRoot.addEventListener('wheel', (e) => {
+                e.preventDefault(); // Inhibit raw document scrolling actions
+                const direction = e.deltaY < 0 ? 0.1 : -0.1;
+                let nextZoom = Math.max(0.1, Math.min(5.0, parseFloat(state.zoom) + direction));
+                updateZoomState(nextZoom);
+            }, { passive: false });
+        }
+
+        function updateZoomState(zoomFactor) {
+            state.zoom = zoomFactor;
+            zoomSelect.value = zoomFactor.toFixed(2);
+            
+            // Populate fallback text values inside the selector framework if missing
+            let matchedOption = Array.from(zoomSelect.options).find(opt => parseFloat(opt.value) === parseFloat(zoomFactor.toFixed(2)));
+            if (matchedOption) {
+                zoomSelect.value = matchedOption.value;
+            } else {
+                let optionExists = Array.from(zoomSelect.options).some(opt => parseFloat(opt.value) === zoomFactor);
+                if (!optionExists) {
+                    let customOpt = document.createElement('option');
+                    customOpt.value = zoomFactor.toFixed(2);
+                    customOpt.textContent = `${Math.round(zoomFactor * 100)}%`;
+                    zoomSelect.insertBefore(customOpt, zoomSelect.options[zoomSelect.options.length - 1]);
+                    zoomSelect.value = zoomFactor.toFixed(2);
+                }
+            }
+            applyTransformationMatrices();
+        }
+
+        function autoFitViewportScale() {
+            const padW = workspaceRoot.clientWidth - 50;
+            const padH = workspaceRoot.clientHeight - 80;
+            const factorX = padW / state.width;
+            const factorY = padH / state.height;
+            let targetZoom = Math.min(factorX, factorY, 1.0);
+            targetZoom = Math.max(0.1, Math.round(targetZoom * 100) / 100);
+            state.zoom = targetZoom;
+            zoomSelect.value = 'fit';
+            state.panX = 0;
+            state.panY = 0;
+            applyTransformationMatrices();
+        }
+
+        function applyTransformationMatrices() {
+            canvasScaleContainer.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+            updateGizmoPosition();
+        }
+
+        function modifyCanvasBounds(w, h) {
+            state.width = w;
+            state.height = h;
+            canvas.width = w;
+            canvas.height = h;
+            canvasScaleContainer.style.width = w + 'px';
+            canvasScaleContainer.style.height = h + 'px';
+            autoFitViewportScale();
+            requestRenderUpdate();
+        }
+
+        // 4. INTERACTIVE GIZMO TRANSFORM ENGINE
+        function setupGizmoInteractionEngine() {
+            workspaceRoot.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('gizmo-handle')) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const clickX = (e.clientX - rect.left) / state.zoom;
+                const clickY = (e.clientY - rect.top) / state.zoom;
+
+                let hitLayer = null;
+                for (let i = state.layers.length - 1; i >= 0; i--) {
+                    const l = state.layers[i];
+                    if (clickX >= l.x && clickX <= l.x + l.w && clickY >= l.y && clickY <= l.y + l.h) {
+                        hitLayer = l;
+                        break;
+                    }
+                }
+
+                if (hitLayer) {
+                    selectLayer(hitLayer.id);
+                    isManipulating = true;
+                    manipulationMode = 'move';
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLayerX = hitLayer.x;
+                    startLayerY = hitLayer.y;
+                } else {
+                    selectLayer(null);
+                }
+            });
+
+            gizmoOverlay.querySelectorAll('.gizmo-handle').forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    const activeLayer = state.layers.find(l => l.id === state.selectedLayerId);
+                    if (!activeLayer) return;
+
+                    isManipulating = true;
+                    manipulationMode = handle.getAttribute('data-handle');
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLayerX = activeLayer.x;
+                    startLayerY = activeLayer.y;
+                    startLayerW = activeLayer.w;
+                    startLayerH = activeLayer.h;
+                });
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isManipulating || !state.selectedLayerId) return;
+                const activeLayer = state.layers.find(l => l.id === state.selectedLayerId);
+                if (!activeLayer) return;
+
+                const dx = (e.clientX - startX) / state.zoom;
+                const dy = (e.clientY - startY) / state.zoom;
+
+                if (manipulationMode === 'move') {
+                    activeLayer.x = Math.round(startLayerX + dx);
+                    activeLayer.y = Math.round(startLayerY + dy);
+                } else {
+                    if (manipulationMode.includes('r')) activeLayer.w = Math.max(10, Math.round(startLayerW + dx));
+                    if (manipulationMode.includes('b')) activeLayer.h = Math.max(10, Math.round(startLayerH + dy));
+                    if (manipulationMode.includes('l')) {
+                        const newW = Math.max(10, Math.round(startLayerW - dx));
+                        activeLayer.x = Math.round(startLayerX + (startLayerW - newW));
+                        activeLayer.w = newW;
+                    }
+                    if (manipulationMode.includes('t')) {
+                        const newH = Math.max(10, Math.round(startLayerH - dy));
+                        activeLayer.y = Math.round(startLayerY + (startLayerH - newH));
+                        activeLayer.h = newH;
+                    }
+                    
+                    if (activeLayer.type === 'text') {
+                        activeLayer.fontSize = Math.max(8, Math.round(activeLayer.h * 0.8));
+                    }
+                }
+
+                updateGizmoPosition();
+                syncLayerInputControls(activeLayer);
+                requestRenderUpdate();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isManipulating = false;
+            });
+        }
+
+        function selectLayer(id) {
+            state.selectedLayerId = id;
+            rebuildLayersStackControlDOM();
+            updateGizmoPosition();
+        }
+
+        function updateGizmoPosition() {
+            if (!state.selectedLayerId) {
+                gizmoOverlay.style.display = 'none';
+                return;
+            }
+
+            const activeLayer = state.layers.find(l => l.id === state.selectedLayerId);
+            if (!activeLayer) {
+                gizmoOverlay.style.display = 'none';
+                return;
+            }
+
+            gizmoOverlay.style.display = 'block';
+            gizmoOverlay.style.left = activeLayer.x + 'px';
+            gizmoOverlay.style.top = activeLayer.y + 'px';
+            gizmoOverlay.style.width = activeLayer.w + 'px';
+            gizmoOverlay.style.height = activeLayer.h + 'px';
+        }
+
+        function calculateLayerBounds(layer) {
+            ctx.save();
+            if (layer.type === 'text') {
+                ctx.font = `${layer.fontSize}px "${layer.fontFamily}", sans-serif`;
+                const metrics = ctx.measureText(layer.text);
+                layer.w = Math.round(metrics.width);
+                layer.h = Math.round(layer.fontSize * 1.2);
+            } else if (layer.type === 'svg' && layer.imgElement) {
+                layer.w = Math.round(layer.imgElement.width * layer.scale);
+                layer.h = Math.round(layer.imgElement.height * layer.scale);
+            }
+            ctx.restore();
+        }
+
+        function syncLayerInputControls(layer) {
+            const card = document.querySelector(`.layer-card[data-layer-id="${layer.id}"]`);
+            if (!card) return;
+            
+            const lx = card.querySelector('.layer-coord-x');
+            const ly = card.querySelector('.layer-coord-y');
+            const lfs = card.querySelector('.layer-size');
+            
+            if (lx) lx.value = layer.x;
+            if (ly) ly.value = layer.y;
+            if (lfs && layer.type === 'text') lfs.value = layer.fontSize;
+        }
+
+        // 5. LAYER GENERATION PATHS
+        function injectDefaultSignageLayers() {
+            const l1 = {
+                id: 'default_layer_1',
+                type: 'text',
+                text: 'RESTRICTED SITE AREA // LEVEL 4 CLEARANCE REQUIRED',
+                x: 60, y: 70, fontSize: 32,
+                color: '#ffffff', fontFamily: 'Impact', customFontName: null
+            };
+            const l2 = {
+                id: 'default_layer_2',
+                type: 'text',
+                text: 'AUTOMATED DETONATION VECTORS ARMED. ACCESS AT SUBJECT TERMINATION RISK.',
+                x: 62, y: 145, fontSize: 16,
+                color: '#e58e26', fontFamily: 'Courier New', customFontName: null
+            };
+            
+            calculateLayerBounds(l1);
+            calculateLayerBounds(l2);
+            state.layers.push(l1, l2);
+            rebuildLayersStackControlDOM();
+        }
+
+        function createNewTextLayerBlock() {
+            const uniqueId = 'layer_' + Date.now();
+            const textLayer = {
+                id: uniqueId,
+                type: 'text',
+                text: 'CRITICAL WARNING BLOCK TEXT',
+                x: 80, y: 80, fontSize: 24,
+                color: '#ffffff', fontFamily: 'Arial', customFontName: null
+            };
+            calculateLayerBounds(textLayer);
+            state.layers.push(textLayer);
+            selectLayer(uniqueId);
+        }
+
+        function executeSvgFileImportStream(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            const file = files[0];
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const rawSvgStr = event.target.result;
+                const blob = new Blob([rawSvgStr], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+
+                const img = new Image();
+                img.onload = () => {
+                    const uniqueId = 'layer_' + Date.now();
+                    const svgLayer = {
+                        id: uniqueId,
+                        type: 'svg',
+                        name: file.name,
+                        imgElement: img,
+                        x: 100, y: 40, scale: 1.0,
+                        rawContent: rawSvgStr
+                    };
+                    calculateLayerBounds(svgLayer);
+                    state.layers.push(svgLayer);
+                    selectLayer(uniqueId);
+                };
+                img.src = url;
+            };
+            reader.readAsText(file);
+        }
+
+        function rebuildLayersStackControlDOM() {
+            layersStackContainer.innerHTML = '';
+            
+            for (let i = state.layers.length - 1; i >= 0; i--) {
+                const layer = state.layers[i];
+                const card = document.createElement('div');
+                card.className = `layer-card ${layer.type === 'svg' ? 'layer-svg' : ''} ${layer.id === state.selectedLayerId ? 'selected' : ''}`;
+                card.setAttribute('data-layer-id', layer.id);
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
+                        selectLayer(layer.id);
+                    }
+                });
+
+                if (layer.type === 'text') {
+                    card.innerHTML = `
+                        <div class="layer-card-header">
+                            <span>TXT: ${layer.text.substring(0,16)}...</span>
+                            <button class="btn btn-danger" style="padding:2px 6px; font-size:9px;" data-del-id="${layer.id}">✕</button>
+                        </div>
+                        <div class="control-group">
+                            <input type="text" class="layer-text-val" data-id="${layer.id}" value="${layer.text}">
+                        </div>
+                        <div class="layer-property-grid">
+                            <div>
+                                <label>X Coord</label>
+                                <input type="number" class="layer-coord-x" data-id="${layer.id}" value="${layer.x}">
+                            </div>
+                            <div>
+                                <label>Y Coord</label>
+                                <input type="number" class="layer-coord-y" data-id="${layer.id}" value="${layer.y}">
+                            </div>
+                            <div>
+                                <label>Font Size</label>
+                                <input type="number" class="layer-size" data-id="${layer.id}" value="${layer.fontSize}">
+                            </div>
+                            <div>
+                                <label>Font Family</label>
+                                <select class="layer-family" data-id="${layer.id}">
+                                    <option value="Arial" ${layer.fontFamily==='Arial'?'selected':''}>Arial</option>
+                                    <option value="Impact" ${layer.fontFamily==='Impact'?'selected':''}>Impact</option>
+                                    <option value="Courier New" ${layer.fontFamily==='Courier New'?'selected':''}>Courier</option>
+                                    <option value="Trebuchet MS" ${layer.fontFamily==='Trebuchet MS'?'selected':''}>Trebuchet</option>
+                                    ${layer.customFontName ? `<option value="${layer.customFontName}" selected>${layer.customFontName}</option>` : ''}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layer-property-grid" style="grid-template-columns: 2fr 1fr;">
+                            <div>
+                                <label>Color Layer</label>
+                                <div class="color-picker-wrapper">
+                                    <div class="color-preview-block" style="background:${layer.color}"></div>
+                                    <span class="color-hex-label">${layer.color.toUpperCase()}</span>
+                                    <input type="color" class="layer-color-picker" data-id="${layer.id}" value="${layer.color}">
+                                </div>
+                            </div>
+                            <div>
+                                <label>Load TTF</label>
+                                <button class="btn font-upl-trigger" style="width:100%; padding:4px;" data-id="${layer.id}">TTF</button>
+                                <input type="file" class="hidden-file-input font-file-uploader" data-id="${layer.id}" accept=".ttf">
+                            </div>
+                        </div>
+                    `;
+                } else if (layer.type === 'svg') {
+                    card.innerHTML = `
+                        <div class="layer-card-header">
+                            <span>SVG: ${layer.name.substring(0,18)}</span>
+                            <button class="btn btn-danger" style="padding:2px 6px; font-size:9px;" data-del-id="${layer.id}">✕</button>
+                        </div>
+                        <div class="layer-property-grid">
+                            <div>
+                                <label>X Coord</label>
+                                <input type="number" class="layer-coord-x" data-id="${layer.id}" value="${layer.x}">
+                            </div>
+                            <div>
+                                <label>Y Coord</label>
+                                <input type="number" class="layer-coord-y" data-id="${layer.id}" value="${layer.y}">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Vector Object Scale</label>
+                            <input type="number" step="0.1" class="layer-scale" data-id="${layer.id}" value="${layer.scale}">
+                        </div>
+                    `;
+                }
+
+                layersStackContainer.appendChild(card);
+            }
+
+            attachLayerCardControlListeners();
+        }
+
+        function attachLayerCardControlListeners() {
+            layersStackContainer.querySelectorAll('[data-del-id]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-del-id');
+                    state.layers = state.layers.filter(l => l.id !== id);
+                    if (state.selectedLayerId === id) selectLayer(null);
+                    rebuildLayersStackControlDOM();
+                    requestRenderUpdate();
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.layer-text-val').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) { 
+                        layer.text = e.target.value; 
+                        calculateLayerBounds(layer);
+                        updateGizmoPosition();
+                        requestRenderUpdate(); 
+                    }
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.layer-coord-x').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) { layer.x = parseInt(e.target.value) || 0; updateGizmoPosition(); requestRenderUpdate(); }
+                });
+            });
+            layersStackContainer.querySelectorAll('.layer-coord-y').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) { layer.y = parseInt(e.target.value) || 0; updateGizmoPosition(); requestRenderUpdate(); }
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.layer-size').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) { 
+                        layer.fontSize = parseInt(e.target.value) || 12; 
+                        calculateLayerBounds(layer);
+                        updateGizmoPosition();
+                        requestRenderUpdate(); 
+                    }
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.layer-family').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) { 
+                        layer.fontFamily = e.target.value; 
+                        calculateLayerBounds(layer);
+                        updateGizmoPosition();
+                        requestRenderUpdate(); 
+                    }
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.layer-color-picker').forEach(picker => {
+                picker.addEventListener('input', (e) => {
+                    registerColorPickerPipeDirect(e.target.getAttribute('data-id'), e.target.value);
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.layer-scale').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) { 
+                        layer.scale = parseFloat(e.target.value) || 1.0; 
+                        calculateLayerBounds(layer);
+                        updateGizmoPosition();
+                        requestRenderUpdate(); 
+                    }
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.font-upl-trigger').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    layersStackContainer.querySelector(`.font-file-uploader[data-id="${id}"]`).click();
+                });
+            });
+
+            layersStackContainer.querySelectorAll('.font-file-uploader').forEach(uploader => {
+                uploader.addEventListener('change', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        state.fontCounter++;
+                        const internalFontFamilyName = `SCP_Architect_Font_${state.fontCounter}`;
+                        const fontBinaryBuffer = evt.target.result;
+
+                        const fontFace = new FontFace(internalFontFamilyName, fontBinaryBuffer);
+                        fontFace.load().then((loadedFace) => {
+                            document.fonts.add(loadedFace);
+                            const layer = state.layers.find(l => l.id === id);
+                            if (layer) {
+                                layer.fontFamily = internalFontFamilyName;
+                                layer.customFontName = internalFontFamilyName;
+                                rebuildLayersStackControlDOM();
+                                requestRenderUpdate();
+                            }
+                        }).catch(err => alert("Font Engine Error: TrueType File Parsing Exception."));
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            });
+        }
+
+        // 6. GRAPHICS BAKE PIPELINE CONTROLLER
+        let animationFrameReqId = null;
+        function requestRenderUpdate() {
+            if (animationFrameReqId) cancelAnimationFrame(animationFrameReqId);
+            animationFrameReqId = requestAnimationFrame(performSynchronousRenderBake);
+        }
+
+        function performSynchronousRenderBake() {
+            const targetW = state.width;
+            const targetH = state.height;
+
+            ctx.clearRect(0, 0, targetW, targetH);
+
+            // PHASE A: CANVAS BACKGROUND ENGINE
+            if (state.bgType === 'solid') {
+                ctx.fillStyle = state.bgColor;
+                ctx.fillRect(0, 0, targetW, targetH);
+            } else if (state.bgType === 'gradient') {
+                const gradient = ctx.createLinearGradient(0, 0, targetW, targetH);
+                gradient.addColorStop(0, state.gradStart);
+                gradient.addColorStop(1, state.gradStop);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, targetW, targetH);
+            }
+
+            // PHASE B: OVERLAY SAFETY LINES
+            executeBoundaryGeometricDraw(ctx, targetW, targetH);
+
+            // PHASE C: VECTOR ELEMENTS STACK DRAW
+            state.layers.forEach(layer => {
+                ctx.save();
+                if (layer.type === 'text') {
+                    ctx.fillStyle = layer.color;
+                    ctx.font = `${layer.fontSize}px "${layer.fontFamily}", sans-serif`;
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(layer.text, layer.x, layer.y);
+                } else if (layer.type === 'svg' && layer.imgElement) {
+                    ctx.drawImage(layer.imgElement, layer.x, layer.y, layer.w, layer.h);
+                }
+                ctx.restore();
+            });
+
+            // PHASE D: PROCEDURAL SHADER WEATHERING PASS
+            if (state.enableWeathering) {
+                applyProceduralWeatheringShaderData(ctx, targetW, targetH);
+            }
+
+            // PHASE E: LED RASTER GRID MASKS
+            if (state.enableLED) {
+                applyDigitalLEDMatrixSubtractions(ctx, targetW, targetH);
+            }
+        }
+
+        function executeBoundaryGeometricDraw(c, w, h) {
+            if (state.boundaryStyle === 'none') return;
+            c.save();
+            c.fillStyle = state.boundaryColor;
+            const stepW = 24;
+
+            if (state.boundaryStyle === 'horizontal' || state.boundaryStyle === 'hazard') {
+                let x = 0;
+                while (x < w) {
+                    c.beginPath();
+                    c.moveTo(x, 0); c.lineTo(x + stepW, 0);
+                    c.lineTo(x + stepW - 12, 12); c.lineTo(x - 12, 12);
+                    c.closePath(); c.fill();
+                    x += stepW * 2;
+                }
+                x = -12;
+                while (x < w) {
+                    c.beginPath();
+                    c.moveTo(x, h - 12); c.lineTo(x + stepW, h - 12);
+                    c.lineTo(x + stepW + 12, h); c.lineTo(x + 12, h);
+                    c.closePath(); c.fill();
+                    x += stepW * 2;
+                }
+            }
+
+            if (state.boundaryStyle === 'vertical' || state.boundaryStyle === 'hazard') {
+                let y = 0;
+                while (y < h) {
+                    c.beginPath();
+                    c.moveTo(0, y); c.lineTo(12, y + 12);
+                    c.lineTo(12, y + stepW + 12); c.lineTo(0, y + stepW);
+                    c.closePath(); c.fill();
+                    y += stepW * 2;
+                }
+                y = -12;
+                while (y < h) {
+                    c.beginPath();
+                    c.moveTo(w - 12, y + 12); c.lineTo(w, y);
+                    c.lineTo(w, y + stepW); c.lineTo(w - 12, y + stepW + 12);
+                    c.closePath(); c.fill();
+                    y += stepW * 2;
+                }
+            }
+            c.restore();
+        }
+
+        function applyProceduralWeatheringShaderData(c, w, h) {
+            const rawImgData = c.getImageData(0, 0, w, h);
+            const arrayData = rawImgData.data;
+            const factorOpacity = state.weatheringIntensity / 100;
+            const mappingScale = state.weatheringScale;
+            const profile = state.weatheringProfile;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    if (arrayData[idx + 3] === 0) continue;
+
+                    let noiseMapValue = 0;
+
+                    if (profile === 'perlin') {
+                        noiseMapValue = (Math.sin(x / mappingScale) + Math.cos(y / mappingScale) + Math.sin((x + y) / (mappingScale * 1.4))) / 3;
+                        noiseMapValue = (noiseMapValue + 1) / 2;
+                    } else if (profile === 'simplex') {
+                        noiseMapValue = Math.sin(x / (mappingScale * 0.35)) * Math.cos(y / (mappingScale * 0.35));
+                        noiseMapValue = Math.abs(noiseMapValue) > 0.68 ? 1 : 0;
+                    } else if (profile === 'cellular') {
+                        const gridCenterX = Math.floor(x / mappingScale) * mappingScale + (mappingScale / 2);
+                        const gridCenterY = Math.floor(y / mappingScale) * mappingScale + (mappingScale / 2);
+                        const vectorDist = Math.sqrt((x - gridCenterX)**2 + (y - gridCenterY)**2) / mappingScale;
+                        noiseMapValue = vectorDist > 0.44 ? 0.95 : 0.05;
+                    } else if (profile === 'abrasion') {
+                        noiseMapValue = Math.random() < 0.20 ? Math.sin(x / mappingScale) : 1.0;
+                        if (noiseMapValue < 0.15) noiseMapValue = 0.0;
+                    }
+
+                    if (noiseMapValue < 0.45) {
+                        const decayValue = (0.45 - noiseMapValue) * factorOpacity * 2.4;
+                        arrayData[idx]     = Math.max(0, arrayData[idx] - (arrayData[idx] * decayValue));
+                        arrayData[idx + 1] = Math.max(0, arrayData[idx + 1] - (arrayData[idx + 1] * decayValue));
+                        arrayData[idx + 2] = Math.max(0, arrayData[idx + 2] - (arrayData[idx + 2] * decayValue));
+                        
+                        if (state.bgType === 'transparent') {
+                            arrayData[idx + 3] = Math.max(0, arrayData[idx + 3] * (1.0 - decayValue));
+                        }
+                    }
+                }
+            }
+            c.putImageData(rawImgData, 0, 0);
+        }
+
+        function applyDigitalLEDMatrixSubtractions(c, w, h) {
+            c.save();
+            c.globalCompositeOperation = 'destination-out';
+            c.fillStyle = 'rgba(0, 0, 0, 1.0)';
+            const gridPitch = state.ledSize;
+
+            for (let y = 0; y < h; y += gridPitch) {
+                c.fillRect(0, y, w, 1);
+            }
+            for (let x = 0; x < w; x += gridPitch) {
+                c.fillRect(x, 0, 1, h);
+            }
+            c.restore();
+        }
+
+        function triggerBinaryPngExportAction() {
+            performSynchronousRenderBake();
+            const dataUrl = canvas.toDataURL('image/png');
+            const anchor = document.createElement('a');
+            anchor.download = `SCP_DECAL_ARCHITECT_${state.width}x${state.height}.png`;
+            anchor.href = dataUrl;
+            anchor.click();
+        }
+    </script>
+</body>
+</html>
